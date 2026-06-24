@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
+import Loader from '../components/Loader';
 
 const ReferralNode = ({ user }) => {
   return (
@@ -48,7 +49,10 @@ const ReferralTree = () => {
 
       <div className="tree-container">
         {loading ? (
-          <div>Loading network tree...</div>
+          <div>
+            {/* Loading network tree... */}
+            <Loader height='500px' />
+          </div>
         ) : tree.length > 0 ? (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>My Direct Referrals:</h3>

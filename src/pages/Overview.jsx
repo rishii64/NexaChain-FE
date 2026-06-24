@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { Wallet, TrendingUp, Users, DollarSign } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const Overview = () => {
   const [summary, setSummary] = useState(null);
@@ -19,12 +20,15 @@ const Overview = () => {
     fetchSummary();
   }, []);
 
-  if (!summary) return <div>Loading dashboard...</div>;
+  if (!summary) return <div>
+    {/* Loading dashboard... */}
+    <Loader />
+  </div>;
 
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.875rem', paddingBottom:'1.4rem' }}>Dashboard Overview</h1>
+        <h1 style={{ fontSize: '1.875rem', paddingBottom: '1.4rem' }}>Dashboard Overview</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Welcome back, {user?.fullName}. Here's what's happening today.</p>
         <p style={{ color: 'var(--primary-color)', fontWeight: 'bold', marginTop: '0.5rem' }}>Your Referral Code: {user?.referralCode}</p>
       </div>
@@ -37,7 +41,7 @@ const Overview = () => {
           </div>
           <span className="stat-value">${summary.walletBalance?.toFixed(2) || '0.00'}</span>
         </div>
-        
+
         <div className="card stat-card glass-panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="stat-title">Total Investments</span>

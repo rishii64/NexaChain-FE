@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
+import Loader from '../components/Loader';
 
 const Investments = () => {
+  const [loading, setLoading] = useState(true);
   const [investments, setInvestments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ amount: 100, planDetails: 'Basic Plan', durationDays: 30, dailyRoiPercentage: 1.5 });
@@ -12,6 +14,8 @@ const Investments = () => {
       setInvestments(data);
     } catch (error) {
       console.error('Failed to fetch investments', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,7 +38,7 @@ const Investments = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', paddingBottom:'1.4rem' }}>My Investments</h1>
+          <h1 style={{ fontSize: '1.875rem', paddingBottom: '1.4rem' }}>My Investments</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Manage your active and past investment plans.</p>
         </div>
         <button className="btn btn-primary" style={{ width: 'auto' }} onClick={() => setShowModal(true)}>
@@ -55,21 +59,30 @@ const Investments = () => {
             </tr>
           </thead>
           <tbody>
-            {investments.map((inv) => (
-              <tr key={inv._id}>
-                <td>{inv.planDetails}</td>
-                <td style={{ fontWeight: 600 }}>${inv.amount.toFixed(2)}</td>
-                <td>{inv.dailyRoiPercentage}%</td>
-                <td>{new Date(inv.startDate).toLocaleDateString()}</td>
-                <td>{new Date(inv.endDate).toLocaleDateString()}</td>
-                <td>
-                  <span className={`badge badge-${inv.status.toLowerCase()}`}>{inv.status}</span>
+            {loading ? (
+              <tr>
+                <td colSpan="6" style={{ padding: '2rem 0' }}>
+                  <Loader height="150px" />
                 </td>
               </tr>
-            ))}
-            {investments.length === 0 && (
+            ) : investments.length > 0 ? (
+              investments.map((inv) => (
+                <tr key={inv._id}>
+                  <td>{inv.planDetails}</td>
+                  <td style={{ fontWeight: 600 }}>${inv.amount.toFixed(2)}</td>
+                  <td>{inv.dailyRoiPercentage}%</td>
+                  <td>{new Date(inv.startDate).toLocaleDateString()}</td>
+                  <td>{new Date(inv.endDate).toLocaleDateString()}</td>
+                  <td>
+                    <span className={`badge badge-${inv.status.toLowerCase()}`}>{inv.status}</span>
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No investments found.</td>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0' }}>
+                  No investments found.
+                </td>
               </tr>
             )}
           </tbody>
@@ -83,19 +96,19 @@ const Investments = () => {
             <form onSubmit={handleCreateInvestment}>
               <div className="form-group">
                 <label className="form-label">Plan Details</label>
-                <input className="form-input" value={formData.planDetails} onChange={(e) => setFormData({...formData, planDetails: e.target.value})} />
+                <input className="form-input" value={formData.planDetails} onChange={(e) => setFormData({ ...formData, planDetails: e.target.value })} />
               </div>
               <div className="form-group">
                 <label className="form-label">Amount ($)</label>
-                <input type="number" className="form-input" value={formData.amount} onChange={(e) => setFormData({...formData, amount: Number(e.target.value)})} />
+                <input type="number" className="form-input" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })} />
               </div>
               <div className="form-group">
                 <label className="form-label">Duration (Days)</label>
-                <input type="number" className="form-input" value={formData.durationDays} onChange={(e) => setFormData({...formData, durationDays: Number(e.target.value)})} />
+                <input type="number" className="form-input" value={formData.durationDays} onChange={(e) => setFormData({ ...formData, durationDays: Number(e.target.value) })} />
               </div>
               <div className="form-group">
                 <label className="form-label">Daily ROI (%)</label>
-                <input type="number" step="0.1" className="form-input" value={formData.dailyRoiPercentage} onChange={(e) => setFormData({...formData, dailyRoiPercentage: Number(e.target.value)})} />
+                <input type="number" step="0.1" className="form-input" value={formData.dailyRoiPercentage} onChange={(e) => setFormData({ ...formData, dailyRoiPercentage: Number(e.target.value) })} />
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
