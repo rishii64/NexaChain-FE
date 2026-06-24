@@ -3,6 +3,16 @@ import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { Wallet, TrendingUp, Users, DollarSign } from 'lucide-react';
 import Loader from '../components/Loader';
+import { 
+  ResponsiveContainer, 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend 
+} from 'recharts';
 
 const Overview = () => {
   const [summary, setSummary] = useState(null);
@@ -24,6 +34,16 @@ const Overview = () => {
     {/* Loading dashboard... */}
     <Loader />
   </div>;
+
+  // Format YYYY-MM-DD date strings for cleaner visualization (e.g. "Jun 25")
+  const formattedChartData = summary.earningsChartData?.map(item => {
+    const dateObj = new Date(item.date);
+    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    return {
+      ...item,
+      displayDate: formattedDate
+    };
+  }) || [];
 
   return (
     <div>
@@ -65,6 +85,130 @@ const Overview = () => {
             <Users color="var(--secondary-color)" />
           </div>
           <span className="stat-value">${summary.totalLevelIncomeEarned?.toFixed(2) || '0.00'}</span>
+        </div>
+      </div>
+
+      {/* Visual Analytics Charts Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', marginTop: '2rem' }}>
+        {/* Chart 1: Investment History */}
+        <div className="card glass-panel" style={{ padding: '1.5rem', minWidth: 0 }}>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'var(--font-heading)' }}>Investment History (Last 7 Days)</h3>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer width="100%" height={300} minWidth={0}>
+              <AreaChart
+                data={formattedChartData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorInvestment" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--success-color)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--success-color)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis 
+                  dataKey="displayDate" 
+                  stroke="var(--text-secondary)" 
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="var(--text-secondary)" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'var(--bg-surface)', 
+                    border: '1px solid var(--border-color)', 
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--text-primary)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`]}
+                />
+                <Legend verticalAlign="top" height={36} iconType="circle" />
+                <Area 
+                  type="monotone" 
+                  dataKey="investment" 
+                  name="New Investments" 
+                  stroke="var(--success-color)" 
+                  fillOpacity={1} 
+                  fill="url(#colorInvestment)" 
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Chart 2: Referral & ROI Earnings */}
+        <div className="card glass-panel" style={{ padding: '1.5rem', minWidth: 0 }}>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'var(--font-heading)' }}>Earnings History (Last 7 Days)</h3>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer width="100%" height={300} minWidth={0}>
+              <AreaChart
+                data={formattedChartData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorRoi" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--warning-color)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--warning-color)" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorReferral" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--secondary-color)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--secondary-color)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis 
+                  dataKey="displayDate" 
+                  stroke="var(--text-secondary)" 
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="var(--text-secondary)" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'var(--bg-surface)', 
+                    border: '1px solid var(--border-color)', 
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--text-primary)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`]}
+                />
+                <Legend verticalAlign="top" height={36} iconType="circle" />
+                <Area 
+                  type="monotone" 
+                  dataKey="roi" 
+                  name="Daily ROI" 
+                  stroke="var(--warning-color)" 
+                  fillOpacity={1} 
+                  fill="url(#colorRoi)" 
+                  strokeWidth={2}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="referral" 
+                  name="Referral Level Income" 
+                  stroke="var(--secondary-color)" 
+                  fillOpacity={1} 
+                  fill="url(#colorReferral)" 
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
